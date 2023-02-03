@@ -87,16 +87,16 @@ Essentially, I believe the issue is that if the Clerk middleware adds to the req
 Instead of:
 
 ```
-				ctx := context.WithValue(r.Context(), ActiveSessionClaims, claims)
-				next.ServeHTTP(w, r.WithContext(ctx))
-				return
+ctx := context.WithValue(r.Context(), ActiveSessionClaims, claims)
+next.ServeHTTP(w, r.WithContext(ctx))
+return
 ```
 
 perhaps we could do:
 
 ```
-				ctx := context.WithValue(r.Context(), ActiveSessionClaims, claims)
-        r = r.WithContext(ctx)
-				next.ServeHTTP(w, r)
-				return
+ctx := context.WithValue(r.Context(), ActiveSessionClaims, claims)
+r = r.WithContext(ctx)
+next.ServeHTTP(w, r)
+return
 ```
