@@ -9,6 +9,7 @@ import (
 
 	"github.com/clerkinc/clerk-sdk-go/clerk"
 	"github.com/gin-gonic/gin"
+	adapter "github.com/gwatts/gin-adapter"
 )
 
 // Set some leeway for checking the tokens so we don't need to keep regenerating
@@ -30,6 +31,16 @@ func main() {
 	routerWithMiddleware.Use(clerkMiddlewareAttempt2(clerkClient))
 
 	routerNoMiddleware := baseRouter.Group("/")
+
+	// new middleware, using package adapter to convert the net/http middleware
+	// to a Gin-compatible middleware
+	routerWithMiddleware2 := baseRouter.Group("/")
+	routerWithMiddleware2.Use(adapter.Wrap(clerk.WithSessionV2(clerkClient, clerk.WithLeeway(leeway))))
+	routerWithMiddleware2.GET("/user2", func(c *gin.Context) {
+		claims, ok := clerk.SessionFromContext(c.Request.Context())
+		fmt.Println(ok)
+		fmt.Println(claims)
+	})
 
 	// This endpoint is a dummy health check to prove the server is up.
 	baseRouter.GET("/livez", func(c *gin.Context) {
